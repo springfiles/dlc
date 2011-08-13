@@ -1,0 +1,181 @@
+<?php
+/* This file is part of Springfiles (GPL v2 or later), see LICENSE.txt */
+
+/**
+ * @author abma <spam@abma.de>
+ * @file
+ * module file for dlc drupal module, registers hooks
+ */
+
+require_once ( dirname(__FILE__) . '/includes/dlc.cron.inc');
+require_once ( dirname(__FILE__) . '/includes/dlc.output.inc');
+require_once ( dirname(__FILE__) . '/includes/dlc.file-output.inc');
+require_once ( dirname(__FILE__) . '/includes/dlc.views.inc');
+/**
+ * Implementation of hook_help().
+ */
+function dlc_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#dlc':
+    return '<p>'. t("displays and aggregates file downloads data for files stored in the drupal files table") .'</p>';
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function dlc_perm() {
+  $perms = array('view all download counts', 'view own download counts');
+  return $perms;
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+
+function dlc_cron() {
+	
+	dlc_cron_run();
+}
+/**
+ * Generates some testdata
+ */
+
+function dlc_testdata(){
+	//$timestamp=time();
+	//for($i=0;$i<500000; $i++){
+	//	$timestamp= $timestamp - 861;
+	//	db_query("INSERT INTO download_count (fid, nid, uid, vid, ip_address, referrer, mirror, timestamp) VALUES
+	//		(".intval($i/1000).", 0, 0, 0, \"1.1.1.1\", \"\",  0, $timestamp)"); 
+	//}
+	//return "";
+}
+/*
+ * registers the urls of this module
+ */
+
+function dlc_menu(){
+	$items=array();
+	$items['dlc'] = array(
+		'title' => 'Site download stats', 
+		'description' => 'Listing of download counts.', 
+		'page callback' => 'dlc_display', 
+	   'access arguments' => array('access content'), 
+		'type' => MENU_SUGGESTED_ITEM,
+  	);
+/*
+	$items['dlc/testdata'] = array(
+		'title' => 'dlc', 
+		'description' => 'Listing of download counts.', 
+		'page callback' => 'dlc_testdata', 
+	   'access arguments' => array('access content'), 
+		'type' => MENU_SUGGESTED_ITEM,
+  	);
+*/
+  	
+  	return $items;
+}
+
+/**
+* Implementation of hook_block().
+*/
+function dlc_block($op = 'list', $delta = 0, $edit = array()) {
+   $block = array();
+   switch ($op) {
+    // add our blocks to the block configuration screen
+    case 'list':
+        $block[0] = array(
+          'info' => t('DLC file daily downloads'),
+	  'cache' => BLOCK_CACHE_PER_PAGE,
+        );
+        $block[1] = array(
+          'info' => t('DLC file weekly downloads'), 
+	  'cache' => BLOCK_CACHE_PER_PAGE,
+        );
+        $block[2] = array(
+          'info' => t('DLC file monthly downloads'), 
+	  'cache' => BLOCK_CACHE_PER_PAGE,        
+	);
+        $block[3] = array(
+          'info' => t('DLC file yearly downloads'), 
+	  'cache' => BLOCK_CACHE_PER_PAGE,        
+	);
+        $block[4] = array(
+          'info' => t('DLC site stats'),
+	  'cache' => BLOCK_CACHE_GLOBAL,  
+        );
+	$block[5] = array(
+          'info' => t('DLC last downloaded files'),
+	  'status' => 1,
+	  'cache' => BLOCK_NO_CACHE,
+        );
+	$block['cache'] = BLOCK_NO_CACHE;
+        return $block;
+    case 'view':
+        switch ($delta) {
+          case 0:
+            // Load the current node from url to get the fid
+            $fid = node_load(arg(1))->field_file[0]['fid'];
+            if (strlen($fid)) {
+                $block = array(
+                  'subject' => t('Daily Downloads'), 
+                  'content' => dlc_file_stats_day(15, $fid),
+                );
+            }
+            break;
+        case 1:
+           // Load the current node from url to get the fid
+            $fid = node_load(arg(1))->field_file[0]['fid'];
+            if (strlen($fid)) {
+                $block = array(
+                  'subject' => t('Weekly Downloads'), 
+                  'content' => dlc_file_stats_week(10, $fid),
+                );
+            }
+            break;
+        case 2:
+            // Load the current node from url to get the fid
+            $fid = node_load(arg(1))->field_file[0]['fid'];
+            if (strlen($fid)) {
+                $block = array(
+                  'subject' => t('Monthly Downloads'), 
+                  'content' => dlc_file_stats_month(24, $fid),
+                );
+            }
+            break;
+        case 3:
+            // Load the current node from url to get the fid
+            $fid = node_load(arg(1))->field_file[0]['fid'];
+            if (strlen($fid)) {
+                $block = array(
+                  'subject' => t('Yearly Downloads'), 
+                  'content' => dlc_file_stats_year(10, $fid),
+                );
+            }
+            break;
+        case 4:
+		$date=time();
+		$output.= _dlc_display_yearly($date);
+		$output.= _dlc_display_monthly($date);
+		$output.= _dlc_display_weekly($date);
+		$output.= _dlc_display_daily($date);	
+		
+		$block = array(
+                  'content' => $output,
+                );
+		
+            break;  
+        
+	case 5:
+		
+		$output.= _dlc_last_downloaded($date);
+		$block = array(
+                  'subject' => t('Last Downloads'), 
+                  'content' => $output,
+                );
+		
+            break;  
+        }
+        return $block;
+    }
+}

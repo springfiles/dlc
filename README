@@ -1,0 +1,28 @@
+How does it work:
+
+cron is run:
+
+pick up latest dcid it was run
+
+select * from download_count where timestam>dcid;
+
+for each line 
+
+	dcid 	fid 	nid 	uid 	vid 	 ip_address 	         referrer                                                                             mirror 	timestamp
+	1       64   44   1  44   217.121.233.243  http://dev.springfiles.com/spring/maps/greenfields...      0           1291481314
+
+insert into incrementated:
+	per file
+	day
+
+download_stats_file:
+	fid	count
+	
+download_stats_day:
+	date	count
+	
+download_stats_week:
+	select from download_stats_day where date > and < 
+
+download_stats_month
+	select from download_stats_day where date > and <

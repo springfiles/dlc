@@ -1,0 +1,195 @@
+<?php
+/* This file is part of Springfiles (GPL v2 or later), see LICENSE.txt */
+
+/**
+ * @author abma <spam@abma.de>
+ * @file
+ * Installation code for the dlc module.
+ */
+
+/**
+ * Implementation of hook_schema().
+ */
+function dlc_schema() {
+  $schema['dlc_file'] = array(
+    'description' => t('TODO'),
+    'fields' => array(
+      'fid' => array(
+        'description' => 'Primary Key: File ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'description' => t('The nid of the node to which the downloaded file was attached when it was downloaded.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'vid' => array(
+        'description' => t('The vid of the node revision to which the downloaded file was attached when it was downloaded.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'description' => t('Total count of downloads for this file'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('fid'),
+  );
+
+  $schema['dlc_day'] = array(
+    'description' => t('TODO'),
+    'fields' => array(
+      'day' => array(
+        'description' => 'Primary Key: Date of the Day',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'description' => t('Total count of downloads at this day'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('day'),
+  );
+
+   $schema['dlc_file_day'] = array(
+    'description' => t('file download count by day'),
+    'fields' => array(
+      'fid' => array(
+        'description' => 'Primary Key: File ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'day' => array(
+        'description' => 'Primary Key: timestamp of the Day',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'description' => t('Total count of downloads at this day'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('day', 'fid'),
+  );
+  $schema['dlc_file_week'] = array(
+    'description' => t('file download count by week'),
+    'fields' => array(
+      'fid' => array(
+        'description' => 'Primary Key: File ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'week' => array(
+        'description' => 'Primary Key: year.weeknumber',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'description' => t('Total count of downloads at this week'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('week', 'fid'),
+  );
+ $schema['dlc_file_month'] = array(
+    'description' => t('file download count by month'),
+    'fields' => array(
+      'fid' => array(
+        'description' => 'Primary Key: File ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'month' => array(
+        'description' => 'Primary Key: year.monthnumber',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'description' => t('Total count of downloads at this month'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('month', 'fid'),
+  );
+ $schema['dlc_file_year'] = array(
+    'description' => t('file download count by year'),
+    'fields' => array(
+      'fid' => array(
+        'description' => 'Primary Key: File ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'year' => array(
+        'description' => 'Primary Key: year',
+        'type' => 'int',
+	'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'description' => t('Total count of downloads at this year'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('year', 'fid'),
+  );
+ return $schema;
+ }
+
+/**
+ * Implementation of hook_install().
+ */
+function dlc_install() {
+	drupal_install_schema('dlc');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function dlc_uninstall() {
+	drupal_uninstall_schema('dlc');
+	db_query("DELETE FROM {variable} WHERE name LIKE 'dlc_%'");
+	variable_del("dlc_last_run");
+}
