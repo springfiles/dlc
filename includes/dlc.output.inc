@@ -166,33 +166,37 @@ function _dlc_last_downloaded($amount = 6){
 	
 	$node = node_load(arg(1));
 	
-	if ($node->path == 'games' || $node->path == 'demos')
+	if ($node->path == 'games' || $node->path == 'demos' || $node->path == 'spellen' || $node->path == 'linux' || $node->path == 'mac')
 	{
 		$result=db_query("SELECT d.nid, d.timestamp FROM {download_count} d
 			 INNER JOIN {content_type_file} f ON f.nid = d.nid
-			 INNER JOIN {content_type_subcategory} s ON f.field_category_nid = s.nid
+			 INNER JOIN {content_field_category} fc on f.nid = fc.nid
+			 INNER JOIN {content_type_subcategory} s ON fc.field_category_nid = s.nid
 			 INNER JOIN {content_type_category} c ON s.field_category_ref_nid = c.nid
-			 WHERE c.field_games_nid = %d
+			 WHERE c.field_games_nid = %d AND d.referrer LIKE 'http://".$_SERVER['SERVER_NAME']."%'
 			 ORDER BY d.timestamp DESC LIMIT 0,6",array($node->nid));
 	}
-	elseif ($node->path == 'frontpage')
+	elseif ($node->path == 'frontpage' || $node->path == 'hot-games')
 	{
 		$result=db_query("SELECT d.nid, d.timestamp FROM {download_count} d
 				 INNER JOIN {content_type_file} f ON f.nid = d.nid
+				 WHERE d.referrer LIKE 'http://".$_SERVER['SERVER_NAME']."%'
 				 ORDER BY d.timestamp DESC LIMIT 0,6");    
 	}
 	elseif ($node->type == 'subcategory')
 	{
 		$result=db_query("SELECT d.nid, d.timestamp FROM {download_count} d
 			 INNER JOIN {content_type_file} f ON f.nid = d.nid
-			 WHERE f.field_category_nid = %d
+			 INNER JOIN {content_field_category} fc on f.nid = fc.nid
+			 WHERE fc.field_category_nid = %d AND d.referrer LIKE 'http://".$_SERVER['SERVER_NAME']."%'
 			 ORDER BY d.timestamp DESC LIMIT 0,6",array($node->nid));
 	}
 	else {
 	$result=db_query("SELECT d.nid, d.timestamp FROM {download_count} d
 			 INNER JOIN {content_type_file} f ON f.nid = d.nid
-			 INNER JOIN {content_type_category} c ON f.field_category_nid = c.nid
-			 WHERE c.field_games_nid = %d OR f.field_category_nid = %d
+			 INNER JOIN {content_field_category} fc on f.nid = fc.nid
+			 INNER JOIN {content_type_category} c ON fc.field_category_nid = c.nid
+			 WHERE d.referrer LIKE 'http://".$_SERVER['SERVER_NAME']."%' AND (c.field_games_nid = %d OR fc.field_category_nid = %d)
 			 ORDER BY d.timestamp DESC LIMIT 0,6",array($node->nid, $node->nid));
 	}
 	$arr=array();

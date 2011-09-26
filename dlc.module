@@ -34,7 +34,8 @@ function dlc_perm() {
  */
 
 function dlc_cron() {
-	
+	//delete all records from dlc_file that are deleted files
+	$res = db_query("DELETE FROM `dlc_file` WHERE `fid` NOT IN (Select fid from files)");
 	dlc_cron_run();
 }
 /**

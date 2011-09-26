@@ -29,7 +29,7 @@ function dlc_cron_run(){
 		@set_time_limit(0);
 	}
 	$lastrun=_dlc_get_lastrun();
-	$result=db_query("SELECT dcid,fid,nid,vid,timestamp FROM {download_count} WHERE dcid > %d ORDER by timestamp", $lastrun);
+	$result=db_query("SELECT dcid,fid,nid,vid,timestamp FROM {download_count} WHERE timestamp > %d ORDER by timestamp", $lastrun);
 	$updates=array();
 	//for each entry in the log, increment the stat-tables
 	while ($row = db_fetch_array($result)) {
