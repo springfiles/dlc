@@ -2,7 +2,7 @@
 /* This file is part of Springfiles (GPL v2 or later), see LICENSE.txt */
 
 /**
- * @author abma <spam@abma.de>
+ * @author jobjol <job@jobjol.com> & abma <spam@abma.de>
  * @file
  * module file for dlc drupal module, registers hooks
  */
