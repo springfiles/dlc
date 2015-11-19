@@ -2,7 +2,7 @@
 /* This file is part of Springfiles (GPL v2 or later), see LICENSE.txt */
 
 /**
- * @author abma <spam@abma.de>
+ * @author jj <job@jobjol.com> & abma <spam@abma.de>
  * @file
  * used for all output of the dlc-module
  */
